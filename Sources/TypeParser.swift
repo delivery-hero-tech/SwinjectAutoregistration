@@ -98,14 +98,14 @@ class TypeParser {
     }
     
     func parseTypeAnnotation() -> Type? {
-        let originalLocation = scanner.scanLocation
+        let originalLocation = scanner.updatedScanLocation
         
         //Scan param name
         _ = parseIdentifier()
         
         //Return if param name is not specified
         if scanner.scan(string: ":") == nil {
-            scanner.scanLocation = originalLocation
+            scanner.updatedScanLocation = originalLocation
         }
         
         return parseType()
@@ -140,7 +140,7 @@ class TypeParser {
     }
     
     func parseProtocolCompositionClause() -> [TypeIdentifier]? {
-        let originalLocation = scanner.scanLocation
+        let originalLocation = scanner.updatedScanLocation
         
         guard let protocolType = parseTypeIdentifier() else { return nil }
         
@@ -150,7 +150,7 @@ class TypeParser {
             protocolTypes.append(protocolType)
         }
         
-        guard protocolTypes.count > 1 else { scanner.scanLocation = originalLocation; return nil; }
+        guard protocolTypes.count > 1 else { scanner.updatedScanLocation = originalLocation; return nil; }
         
         return protocolTypes
     }
@@ -174,16 +174,16 @@ class TypeParser {
     }
     
     func parseFunctionType() -> (parameters: [Type], returnType: Type, throws: Bool)? {
-        let originalLocation = scanner.scanLocation
+        let originalLocation = scanner.updatedScanLocation
         
         guard let parameters = parseTupleType() else { return nil }
         
         let `throws` = scanner.scan(string: "throws") != nil
         // - rethrows is not allowed for closures
         
-        guard scanner.scan(string: "->") != nil else { scanner.scanLocation = originalLocation; return nil }
+        guard scanner.scan(string: "->") != nil else { scanner.updatedScanLocation = originalLocation; return nil }
         
-        guard let returnType = parseType() else { scanner.scanLocation = originalLocation; return nil }
+        guard let returnType = parseType() else { scanner.updatedScanLocation = originalLocation; return nil }
         
         return (parameters: parameters, returnType: returnType, throws: `throws`)
         
@@ -240,4 +240,27 @@ class TypeParser {
     
 }
 
+extension Scanner {
+    var updatedScanLocation: Int? {
+        get {
+            for (offset, _) in string.enumerated() {
+                let index = string.index(string.startIndex, offsetBy: offset)
+                if index == currentIndex {
+                    return offset
+                }
+            }
+
+            return nil
+        }
+        set {
+            guard let startValue = updatedScanLocation, let newValue else { return }
+            let delta = newValue - startValue
+            var offset = 0
+            while isAtEnd == false, offset != delta {
+                currentIndex = string.index(currentIndex, offsetBy: delta > 0 ? 1 : -1)
+                offset += delta > 0 ? 1 : -1
+            }
+        }
+    }
+}
 #endif
