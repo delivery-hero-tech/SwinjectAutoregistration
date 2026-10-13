@@ -1,0 +1,16 @@
+SwinjectAutoregistration.xcodeproj/project.pbxproj
+  h_0f19d15cb4e1cd 1014,1031,1047,1061,1109,1162
+SwinjectAutoregistration.podspec
+  h_0f19d15cb4e1cd 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "98b3ad05db832b3624fee9a5d24474ae6af0e72d",
+  "prompts": {},
+  "humans": {
+    "h_0f19d15cb4e1cd": {
+      "author": "Sergii Sukhanov <sergii.sukhanov@deliveryhero.com>"
+    }
+  }
+}
